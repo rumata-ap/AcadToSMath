@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{86AF75BC-5BAE-45AC-BA9E-E80940DA6060}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AcadToSMath</RootNamespace>
+    <AssemblyName>AcadToSMath</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>false</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Relase -> SMath Release Manager -->
+    <SMathDir Condition=" '$(SMathDir)' == '' AND '$(Configuration)' == 'Release' ">..\..\..\Main\SMathStudio\canvas\bin\Debug</SMathDir>
+    <!-- Debug -> development -->
+    <SMathDir Condition=" '$(SMathDir)' == '' AND '$(Configuration)' == 'Debug' ">C:\Program Files (x86)\SMath Studio</SMathDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SMathDir Condition=" '$(SMathDir)' == '' ">C:\Program Files (x86)\SMathStudio</SMathDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autodesk.AutoCAD.Interop">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\AutoCAD 2020\Autodesk.AutoCAD.Interop.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Autodesk.AutoCAD.Interop.Common">
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\AutoCAD 2020\Autodesk.AutoCAD.Interop.Common.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="netDxf">
+      <HintPath>..\..\..\Документы\C#\netDxf.dll</HintPath>
+    </Reference>
+    <Reference Include="SMath.Controls">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Controls.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SMath.Drawing">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Drawing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SMath.Environment">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Environment.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SMath.Manager">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Manager.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SMath.Math.Numeric">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Math.Numeric.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SMath.Math.Symbolic">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Math.Symbolic.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AcadToSMath.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilites.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- copy anything from the build path to the SMath Studio extension path -->
+  <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Debug' ">
+    <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+      <Output TaskParameter="Assemblies" ItemName="AssemblyInfo" />
+    </GetAssemblyIdentity>
+    <GetAssemblyIdentity AssemblyFiles="$(SMathDir)\SMath.Manager.dll">
+      <Output TaskParameter="Assemblies" ItemName="ProgramInfo" />
+    </GetAssemblyIdentity>
+    <PropertyGroup>
+      <ProgramVersion>%(ProgramInfo.Version)</ProgramVersion>
+      <ConfigFileName>config.$(ProgramVersion.Replace(".", "_")).ini</ConfigFileName>
+      <!-- SS portable -->
+      <PluginPath Condition=" Exists('$(SMathDir)\portable.version')">$(SMathDir)\extensions\plugins\$(ProjectGuid.TrimStart("{").TrimEnd("}"))</PluginPath>
+      <!-- SS from installer -->
+      <PluginPath Condition=" '$(PluginPath)' == ''">$(APPDATA)\SMath\extensions\plugins\$(ProjectGuid.TrimStart("{").TrimEnd("}"))</PluginPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <BuildFiles Include="$(TargetDir)\*.*" />
+      <ConfigFileContent Include="%(AssemblyInfo.Version)" />
+      <!-- extension status (0: enabled; 2: disabled; 1: removed) -->
+      <ConfigFileContent Include="0" />
+    </ItemGroup>
+    <!-- uncomment line below to keep clean the extension directory -->
+    <!-- <RemoveDir Condition="'$(Configuration)' == 'Debug'"Directories="$(PluginPath)"/> -->
+    <Copy SourceFiles="@(BuildFiles)" DestinationFolder="$(PluginPath)\%(AssemblyInfo.Version)" ContinueOnError="false" />
+    <WriteLinesToFile File="$(PluginPath)\$(ConfigFileName)" Lines="@(ConfigFileContent)" Overwrite="true" />
+  </Target>
+</Project>
