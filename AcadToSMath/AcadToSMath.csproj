@@ -40,16 +40,19 @@
     <SMathDir Condition=" '$(SMathDir)' == '' ">C:\Program Files (x86)\SMathStudio</SMathDir>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autodesk.AutoCAD.Interop">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\AutoCAD 2020\Autodesk.AutoCAD.Interop.dll</HintPath>
+    <Reference Include="Autodesk.AutoCAD.Interop, Version=23.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>False</EmbedInteropTypes>
+      <HintPath>bin\Debug\Autodesk.AutoCAD.Interop.dll</HintPath>
     </Reference>
-    <Reference Include="Autodesk.AutoCAD.Interop.Common">
-      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\AutoCAD 2020\Autodesk.AutoCAD.Interop.Common.dll</HintPath>
+    <Reference Include="Autodesk.AutoCAD.Interop.Common, Version=23.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>False</EmbedInteropTypes>
+      <HintPath>bin\Debug\Autodesk.AutoCAD.Interop.Common.dll</HintPath>
     </Reference>
-    <Reference Include="netDxf">
-      <HintPath>..\..\..\Документы\C#\netDxf.dll</HintPath>
+    <Reference Include="netDxf, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\netDxf.dll</HintPath>
     </Reference>
     <Reference Include="SMath.Controls">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\SMath Studio\SMath.Controls.dll</HintPath>

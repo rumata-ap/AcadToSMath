@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using SMath.Math;
 using System.IO;
+using System.Runtime.Remoting.Contexts;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace AcadToSMath
 { 
@@ -46,7 +48,8 @@ namespace AcadToSMath
 
       internal static double[] EntryVec2Arr(Entry vector, Store store)
       {
-         TNumber num = Computation.NumericCalculation(vector, store);
+         Entry arg = Computation.Preprocessing(vector, store);
+         TNumber num = Computation.NumericCalculation(arg, store);
          TMatrix matrix = (TMatrix)num.obj;
          double[] res = new double[matrix.Length()];
          //for (int i = 0; i < matrix.unit.Length; i++)
@@ -71,7 +74,8 @@ namespace AcadToSMath
 
       internal static double[,] EntryMat2Arr(Entry mat, Store store)
       {
-         TNumber num = Computation.NumericCalculation(mat, store);
+         Entry arg = Computation.Preprocessing(mat, store);
+         TNumber num = Computation.NumericCalculation(arg, store);
          TMatrix matrix = (TMatrix)num.obj;
          double[,] res = new double[matrix.unit.GetLength(0), matrix.unit.GetLength(1)];
          for (int i = 0; i < matrix.unit.GetLength(0); i++)
@@ -86,13 +90,15 @@ namespace AcadToSMath
 
       internal static double Entry2Double(Entry prime, Store store)
       {
-         TNumber num = Computation.NumericCalculation(prime, store);
+         Entry arg = Computation.Preprocessing(prime, store);
+         TNumber num = Computation.NumericCalculation(arg, store);
          return num.obj.ToDouble();
       }
 
       internal static int Entry2Int(Entry prime, Store store)
       {
-         TNumber num = Computation.NumericCalculation(prime, store);
+         Entry arg = Computation.Preprocessing(prime, store);
+         TNumber num = Computation.NumericCalculation(arg, store);
          return (int)num.obj.ToDouble();
       }
 
