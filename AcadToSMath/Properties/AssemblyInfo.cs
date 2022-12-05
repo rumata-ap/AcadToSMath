@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // набора атрибутов. Измените значения этих атрибутов для изменения сведений,
 // связанные со сборкой.
 [assembly: AssemblyTitle("AcadToSMath")]
-[assembly: AssemblyDescription("Definition of the section property to be used in the structural analysis")]
+[assembly: AssemblyDescription("Getting drawing object data from AutoCAD and from DXF files")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Aleksandr Ponomarev(https://t.me/smathru)")]
 [assembly: AssemblyProduct("AcadToSMath")]
