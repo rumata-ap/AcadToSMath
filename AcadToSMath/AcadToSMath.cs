@@ -142,7 +142,11 @@ namespace AcadToSMath
             string lay = "#";
             double scale = 1;
             int isClose = 0;
-            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[0].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[0], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[1], context);
             if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") isClose = Utilites.Entry2Int(value.Items[2], context);
 
@@ -246,7 +250,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[0].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[0], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[1], context);
 
 
@@ -331,7 +339,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[0].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[0], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[1], context);
 
 
@@ -415,7 +427,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[0].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[0], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[1], context);
 
 
@@ -499,7 +515,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[0].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[0].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[0], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[1], context);
 
 
@@ -593,7 +613,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[1].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[1], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[2], context);
 
             if (dxf.Lines.Count() == 0)
@@ -650,7 +674,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[1].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[1], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[2], context);
 
             if (dxf.Lines.Count() == 0)
@@ -704,7 +732,11 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[1].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#")
+            {
+               Entry arg = Computation.Preprocessing(value.Items[1], context);
+               lay = TermsConverter.DecodeText(arg.Text).Trim('"');
+            }
             if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[2], context);
 
             if (dxf.Lines.Count() == 0)
