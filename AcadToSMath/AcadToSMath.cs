@@ -3,6 +3,7 @@ using Autodesk.AutoCAD.Interop.Common;
 
 using netDxf;
 using netDxf.Entities;
+using netDxf.Tables;
 
 using SMath.Manager;
 using SMath.Math;
@@ -10,12 +11,12 @@ using SMath.Math.Numeric;
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
+using System.Windows.Forms;
 
 namespace AcadToSMath
 {
@@ -75,7 +76,7 @@ namespace AcadToSMath
                   new ArgumentInfo(ArgumentSections.String),
                   new ArgumentInfo(ArgumentSections.String, true),
                   new ArgumentInfo(ArgumentSections.RealNumber, true)),
-                  
+
                   new TermInfo("GetDxfPoints", TermType.Function,
                   "(1:путь к dxf-файлу, 2:слой, 3:масштаб единиц чертежа) - " +
                   "Получает  координаты точек из dxf-файла, возвращает массив с координатами точек.",
@@ -83,7 +84,7 @@ namespace AcadToSMath
                   new ArgumentInfo(ArgumentSections.String),
                   new ArgumentInfo(ArgumentSections.String, true),
                   new ArgumentInfo(ArgumentSections.RealNumber, true)),
-                  
+
                   new TermInfo("GetDxfTextes", TermType.Function,
                   "(1:путь к dxf-файлу, 2:слой, 3:масштаб единиц чертежа) - " +
                   "Получает  координаты точек вставки и содержимое однострочных текстов из dxf-файла, возвращает массив с данными текста.",
@@ -91,7 +92,7 @@ namespace AcadToSMath
                   new ArgumentInfo(ArgumentSections.String),
                   new ArgumentInfo(ArgumentSections.String, true),
                   new ArgumentInfo(ArgumentSections.RealNumber, true)),
-                  
+
                   new TermInfo("GetDxfCircles", TermType.Function,
                   "(1:путь к dxf-файлу, 2:слой, 3:масштаб единиц чертежа) - " +
                   "Получает  координаты центров, площади и диамерты окружностей из dxf-файла, возвращает массив с данными окружностей.",
@@ -99,14 +100,21 @@ namespace AcadToSMath
                   new ArgumentInfo(ArgumentSections.String),
                   new ArgumentInfo(ArgumentSections.String, true),
                   new ArgumentInfo(ArgumentSections.RealNumber, true)),
-                  
+
+                  new TermInfo("GetDxfReinfBars", TermType.Function,
+                  "(1:путь к dxf-файлу, 2:маска слоя, 3:масштаб единиц чертежа) - " +
+                  "Получает  координаты центров, площади и диамерты окружностей из dxf-файла, возвращает массив с данными окружностей.",
+                  FunctionSections.Files, true,
+                  new ArgumentInfo(ArgumentSections.String),
+                  new ArgumentInfo(ArgumentSections.String, true),
+                  new ArgumentInfo(ArgumentSections.RealNumber, true)),
+
                   new TermInfo("GetDxfPlines", TermType.Function,
-                  "(1:путь к dxf-файлу, 2:слой, 3:масштаб единиц чертежа, 4:замкнуть полилинии) - " +
+                  "(1:путь к dxf-файлу, 2:слой, 3:масштаб единиц чертежа) - " +
                   "Получает вершины полилиний из dxf-файла, возвращает массив с координатами вершин полилиний.",
                   FunctionSections.Files, true,
                   new ArgumentInfo(ArgumentSections.String),
                   new ArgumentInfo(ArgumentSections.String, true),
-                  new ArgumentInfo(ArgumentSections.RealNumber, true),
                   new ArgumentInfo(ArgumentSections.RealNumber, true)),
 
                   };
@@ -660,7 +668,7 @@ namespace AcadToSMath
                }
             }
          }
-         
+
          //GetDxfPoints
          if (value.Type == TermType.Function && value.Text == "GetDxfPoints")
          {
@@ -683,7 +691,7 @@ namespace AcadToSMath
 
             if (dxf.Lines.Count() == 0)
             {
-               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного отрезка на заданном слое\""));
+               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одной точки на заданном слое\""));
                result = Entry.Create(answer.ToArray());
                return true;
             }
@@ -718,7 +726,7 @@ namespace AcadToSMath
                }
             }
          }
-         
+
          //GetDxfTextes
          if (value.Type == TermType.Function && value.Text == "GetDxfTextes")
          {
@@ -741,7 +749,7 @@ namespace AcadToSMath
 
             if (dxf.Lines.Count() == 0)
             {
-               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного отрезка на заданном слое\""));
+               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного текста на заданном слое\""));
                result = Entry.Create(answer.ToArray());
                return true;
             }
@@ -756,7 +764,7 @@ namespace AcadToSMath
                }
                if (lines.Count == 0)
                {
-                  answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного отрезка на заданном слое\""));
+                  answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного текста на заданном слое\""));
                   result = Entry.Create(answer.ToArray());
                   return true;
                }
@@ -776,7 +784,83 @@ namespace AcadToSMath
                }
             }
          }
-         
+
+         //GetDxfReinfBars
+         if (value.Type == TermType.Function && value.Text == "GetDxfReinfBars")
+         {
+            List<Term> answer = new List<Term>();
+
+            Entry arg1 = Computation.Preprocessing(value.Items[0], context);
+            string filepath = TermsConverter.DecodeText(arg1.Text).Trim('"');
+            int indexOfChar = filepath.IndexOf(':');
+            if (indexOfChar == -1) filepath = Utilites.CurrentPath(context.FileName) + "\\" + filepath;
+            DxfDocument dxf = DxfDocument.Load(filepath);
+
+            string lay = "#";
+            double scale = 1;
+            if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[1].Text).Trim('"');
+            if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[2], context);
+
+            if (dxf.Circles.Count() == 0)
+            {
+               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одной окружности на заданном слое\""));
+               result = Entry.Create(answer.ToArray());
+               return true;
+            }
+            else
+            {
+               List<string> layers = new List<string>();
+               foreach (Layer item in dxf.Layers)
+               {
+                  if (item.Name.IndexOf(lay) != -1) layers.Add(item.Name);
+               }
+               if (layers.Count == 0)
+               {
+                  answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одной окружности на заданном слое\""));
+                  result = Entry.Create(answer.ToArray());
+                  return true;
+               }
+               else
+               {
+                  Dictionary<string, List<Circle>> rbgs = new Dictionary<string, List<Circle>>(layers.Count);
+                  foreach (string ls in layers)
+                  {
+                     rbgs.Add(ls, new List<Circle>());
+                     List<Circle> circles = new List<Circle>();
+                     foreach (Circle item in dxf.Circles)
+                     {
+                        if (item.Layer.Name == ls) rbgs[ls].Add(item);
+                     }
+                  }
+
+                  int cnt = rbgs.Count;
+                  foreach (List<Circle> cs in rbgs.Values)
+                  {
+                     if (cs.Count != 0)
+                     {
+                        foreach (Circle c in cs)
+                        {
+                           answer.AddRange(new TNumber(c.Center.X * scale).obj.ToTerms());
+                           answer.AddRange(new TNumber(c.Center.Y * scale).obj.ToTerms());
+                           answer.AddRange(new TNumber(2 * c.Radius * scale).obj.ToTerms());
+                           answer.AddRange(new TNumber(Math.Pow(c.Radius * scale, 2) * Math.PI).obj.ToTerms());
+                           answer.AddRange(TermsConverter.ToTerms($"\"{c.Layer.Name}\""));
+                        }
+                        answer.AddRange(TermsConverter.ToTerms(cs.Count.ToString()));
+                        answer.AddRange(TermsConverter.ToTerms(5.ToString()));
+                        answer.Add(new Term(Functions.Mat, TermType.Function, 2 + cs.Count * 5));
+                     }
+                     else cnt--;
+                  }
+                  answer.AddRange(TermsConverter.ToTerms(1.ToString()));
+                  answer.AddRange(TermsConverter.ToTerms(cnt.ToString()));
+                  answer.Add(new Term(Functions.Mat, TermType.Function, 2 + cnt));
+                  result = Entry.Create(answer.ToArray());
+                  return true;
+               }
+            }
+         }
+
          //GetDxfCircles
          if (value.Type == TermType.Function && value.Text == "GetDxfCircles")
          {
@@ -793,16 +877,16 @@ namespace AcadToSMath
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#") lay = TermsConverter.DecodeText(value.Items[1].Text).Trim('"');
             if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[2], context);
 
-            if (dxf.Lines.Count() == 0)
+            if (dxf.Circles.Count() == 0)
             {
-               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного отрезка на заданном слое\""));
+               answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одной окружности на заданном слое\""));
                result = Entry.Create(answer.ToArray());
                return true;
             }
             else
             {
-               List<Text> lines = new List<Text>();
-               foreach (Text item in dxf.Texts)
+               List<Circle> lines = new List<Circle>();
+               foreach (Circle item in dxf.Circles)
                {
                   if (lay != "#" && item.Layer.Name == lay) lines.Add(item);
                   else if (lay == "#") lines.Add(item);
@@ -810,17 +894,17 @@ namespace AcadToSMath
                }
                if (lines.Count == 0)
                {
-                  answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одного отрезка на заданном слое\""));
+                  answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одной окружности на заданном слое\""));
                   result = Entry.Create(answer.ToArray());
                   return true;
                }
                else
                {
-                  foreach (Text item in lines)
+                  foreach (Circle item in lines)
                   {
-                     answer.AddRange(new TNumber(item.Position.X * scale).obj.ToTerms());
-                     answer.AddRange(new TNumber(item.Position.Y * scale).obj.ToTerms());
-                     answer.AddRange(TermsConverter.ToTerms("\"" + item.Value + "\""));
+                     answer.AddRange(new TNumber(item.Center.X * scale).obj.ToTerms());
+                     answer.AddRange(new TNumber(item.Center.Y * scale).obj.ToTerms());
+                     answer.AddRange(new TNumber(2 * item.Radius * scale).obj.ToTerms());
                   }
                   answer.AddRange(TermsConverter.ToTerms(lines.Count.ToString()));
                   answer.AddRange(TermsConverter.ToTerms(3.ToString()));
@@ -830,7 +914,7 @@ namespace AcadToSMath
                }
             }
          }
-         
+
          //GetDxfPlines
          if (value.Type == TermType.Function && value.Text == "GetDxfPlines")
          {
@@ -844,16 +928,16 @@ namespace AcadToSMath
 
             string lay = "#";
             double scale = 1;
-            int isClose = 0;
+            //int isClose = 0;
             if (TermsConverter.DecodeText(value.Items[1].Text).Trim('"') != "#")
             {
                Entry arg = Computation.Preprocessing(value.Items[1], context);
                lay = TermsConverter.DecodeText(arg.Text).Trim('"');
             }
             if (TermsConverter.DecodeText(value.Items[2].Text).Trim('"') != "#") scale = Utilites.Entry2Double(value.Items[2], context);
-            if (TermsConverter.DecodeText(value.Items[3].Text).Trim('"') != "#") isClose = Utilites.Entry2Int(value.Items[3], context);
+            //if (TermsConverter.DecodeText(value.Items[3].Text).Trim('"') != "#") isClose = Utilites.Entry2Int(value.Items[3], context);
 
-            if (dxf.Lines.Count() == 0)
+            if (dxf.LwPolylines.Count() == 0)
             {
                answer.AddRange(TermsConverter.ToTerms("\"Документ не содержит ни одной полилинии на заданном слое\""));
                result = Entry.Create(answer.ToArray());
@@ -874,42 +958,25 @@ namespace AcadToSMath
                   result = Entry.Create(answer.ToArray());
                   return true;
                }
-               else if(lines.Count == 1)
-               {
-                  LwPolyline item = lines[0];
-                  List<LwPolylineVertex> vxs = item.Vertexes;
-                  foreach (LwPolylineVertex vx in vxs)
-                  {
-                     answer.AddRange(new TNumber(vx.Position.X * scale).obj.ToTerms());
-                     answer.AddRange(new TNumber(vx.Position.Y * scale).obj.ToTerms());
-                  }
-                  if (isClose != 0)
-                  {
-                     answer.AddRange(new TNumber(vxs[0].Position.X * scale).obj.ToTerms());
-                     answer.AddRange(new TNumber(vxs[0].Position.Y * scale).obj.ToTerms());
-                     answer.AddRange(TermsConverter.ToTerms((vxs.Count + 1).ToString()));
-                     answer.AddRange(TermsConverter.ToTerms(2.ToString()));
-                     answer.Add(new Term(Functions.Mat, TermType.Function, 4 + vxs.Count * 2));
-                     result = Entry.Create(answer.ToArray());
-                     return true;
-                  }
-                  answer.AddRange(TermsConverter.ToTerms(vxs.Count.ToString()));
-                  answer.AddRange(TermsConverter.ToTerms(2.ToString()));
-                  answer.Add(new Term(Functions.Mat, TermType.Function, 2 + vxs.Count * 2));
-                  result = Entry.Create(answer.ToArray());
-                  return true;
-               }
                else
                {
                   foreach (LwPolyline item in lines)
                   {
                      List<LwPolylineVertex> vxs = item.Vertexes;
-                     foreach (LwPolylineVertex vx in vxs)
+                     if (!item.IsClosed)
+                        vxs[vxs.Count - 1] = vxs[0];
+
+                     for (int i = 0; i < vxs.Count; i++)
                      {
-                        answer.AddRange(new TNumber(vx.Position.X * scale).obj.ToTerms());
-                        answer.AddRange(new TNumber(vx.Position.Y * scale).obj.ToTerms());
+                        answer.AddRange(new TNumber(vxs[i].Position.X * scale).obj.ToTerms());
+                        answer.AddRange(new TNumber(vxs[i].Position.Y * scale).obj.ToTerms());
                      }
-                     if (isClose != 0)
+                     //foreach (LwPolylineVertex vx in vxs)
+                     //{
+                     //   answer.AddRange(new TNumber(vx.Position.X * scale).obj.ToTerms());
+                     //   answer.AddRange(new TNumber(vx.Position.Y * scale).obj.ToTerms());
+                     //}
+                     if (item.IsClosed)
                      {
                         answer.AddRange(new TNumber(vxs[0].Position.X * scale).obj.ToTerms());
                         answer.AddRange(new TNumber(vxs[0].Position.Y * scale).obj.ToTerms());
